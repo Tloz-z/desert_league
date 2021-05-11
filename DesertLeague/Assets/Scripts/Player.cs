@@ -1,12 +1,10 @@
-﻿using EasyJoystick;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private Joystick joystick;
+    public float speed;
     float hAxis;
     float vAxis;
 
@@ -21,8 +19,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        hAxis = joystick.Horizontal();
-        vAxis = joystick.Vertical();
+        hAxis = Input.GetAxisRaw("Horizontal");
+        vAxis = Input.GetAxisRaw("Vertical");
 
         moveVec = new Vector3(hAxis, 0, vAxis).normalized;
 

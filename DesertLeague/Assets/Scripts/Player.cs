@@ -12,13 +12,23 @@ public class Player : MonoBehaviour
 
     Vector3 moveVec;
 
+    Rigidbody rigid;
     Animator anim;
     void Awake()
     {
         anim = GetComponentInChildren<Animator>();
     }
 
-    // Update is called once per frame
+    void FreezeVelocity()
+    {
+        rigid.angularVelocity = Vector3.zero;
+        rigid.velocity = Vector3.zero;
+    }
+    void FixedUpdate()
+    {
+        FreezeVelocity();
+    }
+
     void Update()
     {
         hAxis = joystick.Horizontal();

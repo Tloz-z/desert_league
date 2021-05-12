@@ -14,9 +14,19 @@ public class Player : MonoBehaviour
 
     Rigidbody rigid;
     Animator anim;
+
+    bool isBorder;
+
     void Awake()
     {
         anim = GetComponentInChildren<Animator>();
+        rigid = GetComponent<Rigidbody>();
+    }
+
+    void StopToWall()
+    {
+        Debug.DrawRay(transform.position, transform.forward * 5, Color.green);
+        isBorder = Physics.Raycast(transform.position, transform.forward, 2, LayerMask.GetMask("Wall"));
     }
 
     void FreezeVelocity()
@@ -27,6 +37,7 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         FreezeVelocity();
+        StopToWall();
     }
 
     void Update()
@@ -36,7 +47,8 @@ public class Player : MonoBehaviour
 
         moveVec = new Vector3(hAxis, 0, vAxis).normalized;
 
-        transform.position += moveVec * speed * Time.deltaTime;
+        if(!isBorder)
+            transform.position += moveVec * speed * Time.deltaTime;
 
         anim.SetBool("isRun", moveVec != Vector3.zero);
 

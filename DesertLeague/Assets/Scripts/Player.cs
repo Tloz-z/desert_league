@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float speed;
     [SerializeField] private Joystick joystick;
+
     float hAxis;
     float vAxis;
 

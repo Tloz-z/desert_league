@@ -12,9 +12,8 @@ public class Unit: MonoBehaviour
     Rigidbody rigid;
     BoxCollider boxCollider;
     NavMeshAgent nav;
-    Animator anim;
 
-    bool isChase;
+    public bool isChase;
     bool isAttack;
     
 
@@ -23,7 +22,6 @@ public class Unit: MonoBehaviour
         rigid = GetComponent<Rigidbody>();
         boxCollider = GetComponent<BoxCollider>();
         nav = GetComponent<NavMeshAgent>();
-        anim = GetComponentInChildren<Animator>();
 
         ChaseStart();//따라가기를 실행함
     }
@@ -51,6 +49,5 @@ public class Unit: MonoBehaviour
     void ChaseStart()
     {
         isChase = true;
-        anim.SetBool("isWalk", true);
     }
 }

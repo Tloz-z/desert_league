@@ -22,6 +22,8 @@ public class Minion : MonoBehaviour
     public float range; // 공격범위
     public GameObject attackTarget; //공격타겟
 
+    private bool isTargeting;
+
     void Start()
     {
         cur_health = max_health;
@@ -36,8 +38,7 @@ public class Minion : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
 
         // 이 밑으로 ai를 위한 초기화
-        InvokeRepeating("Targeting", 0f, 0.2f); //함수를 0초이후부터 0.2초마다 재실행
-
+        isTargeting = false;
     }
 
     
@@ -59,11 +60,13 @@ public class Minion : MonoBehaviour
         }
 
         // 이 밑으로 미니언 ai
-        Vector3 movVec = target.transform.position - transform.position;
-        transform.position += movVec.normalized * Time.deltaTime * speed;
-        transform.LookAt(transform.position + movVec);
-    }
 
+        // 타겟팅이 안되어있을때 새로운 대상을 찾음
+        if (!isTargeting || target == null ) { Targeting(); }
+        else { CheckTarget(); }
+
+        Chase(); // 네비게이션 AI 코드
+    }
 
 
     public void Hit(int damage)
@@ -107,6 +110,7 @@ public class Minion : MonoBehaviour
         if(shortestDistance <= range) //미니언이 사정거리 내에 있을 경우
         {
             target = nearestTarget;
+            isTargeting = true;
         }
         else // 미니언이 사정 거리에 없을 경우, 가장 가까운 건물을 탐색
         {
@@ -123,6 +127,8 @@ public class Minion : MonoBehaviour
             if (shortestDistance <= range) //건물이 사정거리 내에 있을 경우
             {
                 target = nearestTarget;
+                isTargeting = true;
+
             }
             else // 건물이 사정 거리에 없을 경우, 가장 가까운 플레이어 탐색
             {
@@ -139,10 +145,29 @@ public class Minion : MonoBehaviour
                 if (shortestDistance <= range) //적 플레이어가 사정거리 내에 있을 경우
                 {
                     target = nearestTarget;
+                    isTargeting = true;
+
                 }
-                else { target = GameObject.FindGameObjectWithTag("Nexus"); }
+                else { target = GameObject.FindGameObjectWithTag("Nexus"); isTargeting = true; }
             }
         }
+    }
+    void CheckTarget()
+    {
+        if(target != null)
+        {
+            float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
+            if(distanceToTarget > range) // 타겟이 공격범위를 벗어났을 때
+            {
+                isTargeting = false;
+            }
+        }
+    }
+    private void Chase()
+    {
+        Vector3 movVec = target.transform.position - transform.position;
+        transform.position += movVec.normalized * Time.deltaTime * speed;
+        transform.LookAt(transform.position + movVec);
     }
 
 }

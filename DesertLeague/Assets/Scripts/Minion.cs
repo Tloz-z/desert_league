@@ -5,6 +5,7 @@ using UnityEngine;
 public class Minion : MonoBehaviour
 {
     private GameObject canvas;
+    Rigidbody rigid;
 
     [SerializeField] private int max_health;
     private int cur_health;
@@ -37,6 +38,8 @@ public class Minion : MonoBehaviour
 
         animator = GetComponentInChildren<Animator>();
 
+        rigid = GetComponent<Rigidbody>();
+
         // 이 밑으로 ai를 위한 초기화
         isTargeting = false;
     }
@@ -44,7 +47,7 @@ public class Minion : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isAlive)
         {
             Hit(20);
         }
@@ -68,6 +71,10 @@ public class Minion : MonoBehaviour
         Chase(); // 네비게이션 AI 코드
     }
 
+    private void FixedUpdate()
+    {
+        FreezeVelocity();
+    }
 
     public void Hit(int damage)
     {
@@ -84,6 +91,12 @@ public class Minion : MonoBehaviour
         isAlive = false;
         hpBar.Die();
         animator.SetBool("isDie", true);
+    }
+
+    void FreezeVelocity()
+    {
+        rigid.angularVelocity = Vector3.zero;
+        rigid.velocity = Vector3.zero;
     }
 
     // 이 밑으로 ai를 위한 함수들
@@ -163,7 +176,7 @@ public class Minion : MonoBehaviour
             }
         }
     }
-    private void Chase()
+    void Chase()
     {
         Vector3 movVec = target.transform.position - transform.position;
         transform.position += movVec.normalized * Time.deltaTime * speed;

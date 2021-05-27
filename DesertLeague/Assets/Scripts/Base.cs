@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Base : MonoBehaviour
+public class Base : MonoBehaviour, IEnemy
 {
     private GameObject canvas;
     Rigidbody rigid;
 
     [SerializeField] private int max_health;
+    [SerializeField] private TeamColor teamColor;
     private int cur_health;
 
     private HpBar hpBar;
@@ -15,7 +16,16 @@ public class Base : MonoBehaviour
 
     private int timer = 0;
 
- 
+    public int GetHp()
+    {
+        return this.cur_health;
+    }
+
+    public TeamColor GetTeamColor()
+    {
+        return this.teamColor;
+    }
+
     private void Start()
     {
         cur_health = max_health;

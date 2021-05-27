@@ -15,6 +15,9 @@ ModelImporter:
   - first:
       74: 8349542763059015795
     second: Walk
+  - first:
+      74: 4723146814002874508
+    second: Armature|Attack
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -44,7 +47,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Attack
+      name: Armature|Attack
       takeName: Armature|Attack
       internalID: 0
       firstFrame: 0

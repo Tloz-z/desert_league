@@ -4,8 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IEnemy
 {
+
+    [SerializeField] private int max_health;
+    [SerializeField] private TeamColor teamColor;
+    private int cur_health;
+
     [SerializeField] private float speed;
     [SerializeField] private Joystick joystick;
 
@@ -18,6 +23,16 @@ public class Player : MonoBehaviour
     Animator anim;
 
     bool isBorder;
+
+    public int GetHp()
+    {
+        return this.cur_health;
+    }
+
+    public TeamColor GetTeamColor()
+    {
+        return this.teamColor;
+    }
 
     void Awake()
     {
@@ -54,5 +69,10 @@ public class Player : MonoBehaviour
         anim.SetBool("isRun", moveVec != Vector3.zero);
 
         transform.LookAt(transform.position + moveVec);
+    }
+
+    public void Hit(int damage)
+    {
+        return;
     }
 }

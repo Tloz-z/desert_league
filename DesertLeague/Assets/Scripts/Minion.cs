@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Minion : MonoBehaviour
+public class Minion : MonoBehaviour , IEnemy
 {
+
     private GameObject canvas;
     Rigidbody rigid;
 
@@ -19,12 +20,26 @@ public class Minion : MonoBehaviour
 
     private int timer = 0;
 
+    [SerializeField] private TeamColor teamColor;
+
     // 이 밑으로 ai를 위한 변수들
-    public float range; // 공격범위
-    public GameObject attackTarget; //공격타겟
+    public float range; // 타게팅범위
+    private float attackRange = 6.0f;  //사거리
 
     private bool isTargeting;
+    public bool doingAttack = false;
+    private bool isAttack;
 
+
+    public int GetHp()
+    {
+        return this.cur_health;
+    }
+
+    public TeamColor GetTeamColor()
+    {
+        return this.teamColor;
+    }
     void Start()
     {
         cur_health = max_health;
@@ -42,6 +57,7 @@ public class Minion : MonoBehaviour
 
         // 이 밑으로 ai를 위한 초기화
         isTargeting = false;
+        isAttack = false;
     }
 
     
@@ -49,7 +65,11 @@ public class Minion : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && isAlive)
         {
-            Hit(20);
+            Debug.Log("doingAttack : " + doingAttack);
+            Debug.Log("isAttack : " + isAttack);
+            Debug.Log("Target : " + target);
+            Debug.Log("isTargeting : " + isTargeting);
+            //Hit(20);
         }
 
         if (!isAlive)
@@ -64,12 +84,27 @@ public class Minion : MonoBehaviour
 
         // 이 밑으로 미니언 ai
 
+        if (doingAttack)
+        {
+            return;
+        }
+
+        if (isAttack)
+        {
+            isAttack = false;
+            doingAttack = true;
+            StartCoroutine("Attack");
+            return;
+        }
+
         // 타겟팅이 안되어있을때 새로운 대상을 찾음
-        if (!isTargeting || target == null ) { Targeting(); }
+        if (!isTargeting || target == null ) {
+            Targeting(); }
         else { CheckTarget(); }
 
         Chase(); // 네비게이션 AI 코드
     }
+
 
     private void FixedUpdate()
     {
@@ -111,7 +146,8 @@ public class Minion : MonoBehaviour
 
         foreach(GameObject minion in minions) // 가장 가까운 미니언 탐색
         {
-            if(minion == this.gameObject) { continue; }//임시로 자기자신은 뺐음 나중에 적 아군 피아식별 변수 넣으면 지워도 될듯
+           if(minion.GetComponent<IEnemy>().GetTeamColor() == this.teamColor ||
+                 minion.GetComponent<IEnemy>().GetHp() <= 0) { continue; }
 
             float distanceToTarget = Vector3.Distance(transform.position, minion.transform.position);
             if(distanceToTarget < shortestDistance)
@@ -120,6 +156,7 @@ public class Minion : MonoBehaviour
                 nearestTarget = minion;
             }
         }
+
         if(shortestDistance <= range) //미니언이 사정거리 내에 있을 경우
         {
             target = nearestTarget;
@@ -130,6 +167,9 @@ public class Minion : MonoBehaviour
             shortestDistance = Mathf.Infinity;
             foreach (GameObject targetbase in targetbases)
             {
+                if (targetbase.GetComponent<IEnemy>().GetTeamColor() == this.teamColor ||
+                    targetbase.GetComponent<IEnemy>().GetHp() <= 0) { continue; }
+
                 float distanceToTarget = Vector3.Distance(transform.position, targetbase.transform.position);
                 if (distanceToTarget < shortestDistance)
                 {
@@ -148,6 +188,9 @@ public class Minion : MonoBehaviour
                 shortestDistance = Mathf.Infinity;
                 foreach (GameObject targetplayer in targetplayers)
                 {
+                    if (targetplayer.GetComponent<IEnemy>().GetTeamColor() == this.teamColor ||
+                        targetplayer.GetComponent<IEnemy>().GetHp() <= 0) { continue; }
+
                     float distanceToTarget = Vector3.Distance(transform.position, targetplayer.transform.position);
                     if (distanceToTarget < shortestDistance)
                     {
@@ -174,13 +217,40 @@ public class Minion : MonoBehaviour
             {
                 isTargeting = false;
             }
+
+            if (distanceToTarget < attackRange)
+            {
+                isAttack = true;
+            }
         }
     }
-    void Chase()
+    private void Chase()
     {
         Vector3 movVec = target.transform.position - transform.position;
         transform.position += movVec.normalized * Time.deltaTime * speed;
         transform.LookAt(transform.position + movVec);
     }
 
+    IEnumerator Attack()
+    {
+        GameObject attackTarget = this.target;
+        
+        animator.SetBool("isAttack", true);
+
+        yield return new WaitForSeconds(0.88f);
+
+        attackTarget.GetComponent<IEnemy>().Hit(5);
+        yield return new WaitForSeconds(1.12f);
+
+        doingAttack = false;
+        animator.SetBool("isAttack", false);
+
+        if (attackTarget.GetComponent<IEnemy>().GetHp() - 5 <= 0)
+        {
+            this.target = null;
+            isTargeting = false;
+        }
+
+        yield return null;
+    }
 }
